@@ -1,0 +1,11 @@
+# This test file utilizes the Emacs restclient package
+# to encode HTTP requests that can be used to test the 
+# application during development manually.
+# These do *not* work as unit tests :-)
+
+POST https://api.github.com/repos/jsjolen/smallest-java-ci/issues/45/comments
+User-Agent: smallestjavaci
+Authorization: Basic anNqb2xlbjptR3NIMzJubEkxY0NWNEdTYnpLU215cHFSaE00dkg=
+{
+"body": "Hello"
+} 

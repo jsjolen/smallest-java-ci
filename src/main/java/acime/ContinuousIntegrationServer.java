@@ -1,21 +1,18 @@
 package acime;
 
+import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.AbstractHandler;
+
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.ServletException;
-
 import java.io.File;
 import java.io.IOException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
-import java.util.Map;
-import java.util.*;
-
-import acime.Models.GitHubStatus;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.server.handler.AbstractHandler;
-import org.eclipse.jetty.util.ajax.*;
 
 /** 
     Skeleton of a ContinuousIntegrationServer which acts as webhook
@@ -84,7 +81,8 @@ public class ContinuousIntegrationServer extends AbstractHandler
 //			ghStatusHandler.postStatus();
 //		}
 	}
- 
+
+
     // used to start the CI server in command line
     public static void main(String[] args) throws Exception
 	{
@@ -93,6 +91,7 @@ public class ContinuousIntegrationServer extends AbstractHandler
 	    server.start();
 	    server.join();
 	}
+
    
     /**
        Serves as an entry-point to Github's webhook mechanism.
@@ -173,8 +172,13 @@ public class ContinuousIntegrationServer extends AbstractHandler
 	{
 	    String[] parts = target.split("/");
 	    response.getWriter().println(htmlPreamble);
-	    response.getWriter().println("Welcome to test, hash is: "+parts[parts.length-1]);
-	    response.getWriter().println(htmlPostamble);
+	    response.getWriter().println("Welcome to test, hash is: " + parts[parts.length-1] + "\nContents of test:\n");
+		try {
+			response.getWriter().println(this.presentSingleFile(parts));
+		} catch (Exception e) {
+			response.getWriter().println("Failed to load test log: " + target);
+		}
+		response.getWriter().println(htmlPostamble);
 	}
     /**
        Serves as an entry-point to build presentation, returns an HTML representation of the build run defined by URL.
@@ -186,10 +190,16 @@ public class ContinuousIntegrationServer extends AbstractHandler
 	{
 	    String[] parts = target.split("/");
 	    response.getWriter().println(htmlPreamble);
-	    response.getWriter().println("Welcome to build. hash is: "+parts[parts.length-1]);
-	    response.getWriter().println(htmlPostamble);
+	    response.getWriter().println("Welcome to build. hash is: " + parts[parts.length-1] + "\nContents of build:\n");
+		try {
+			response.getWriter().println(this.presentSingleFile(parts));
+		} catch (Exception e) {
+			response.getWriter().println("Failed to load build log: " + target);
+		}
+		response.getWriter().println(htmlPostamble);
 	}
-    /**
+
+	/**
        Serves as an entry-point to build presentation, returns an HTML representation of the last 100 build runs.
     **/
     void handleBuild(String target, Request baseRequest,
@@ -240,4 +250,23 @@ public class ContinuousIntegrationServer extends AbstractHandler
 	    IndexHtml builder = new IndexHtml();
 	    return builder.indexBuild(filenames, target+"/");
 	}
+
+	/**
+	   Given a target which is in either "/builds" or "/tests", read all the logs from it
+	   and return the information as a string.
+	   @param targetParts the target split into strings
+	 **/
+	public String presentSingleFile(String[] targetParts) throws Exception {
+		String dir = targetParts[targetParts.length-2];
+
+		if(!dir.equals("builds") && !dir.equals("tests")) {
+			throw new Exception("Wrong directory!");
+		}
+
+		FileReaderFactory frf = new FileReaderFactory();
+		LogReader logReader = new LogReader(System.getProperty("user.dir") + "/" + dir, frf);
+
+		return logReader.read(targetParts[targetParts.length-1]);
+	}
+
 }

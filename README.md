@@ -69,3 +69,7 @@ The structure of what you should do for a new feature looks like this:
 - Wrote most of Webhook Handler method which invokes the Git + Gradle interfaces
 - Troubleshot + Debugged outstanding issues
 - Did Code Reviews
+
+## Jagan Moorthy
+- GitHub Status(notification)
+- Mail module(Currently dead code, as GitHub status works)

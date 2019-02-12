@@ -1,5 +1,6 @@
 package acime;
 
+import acime.Models.GitHubStatus;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;

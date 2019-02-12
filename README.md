@@ -73,3 +73,8 @@ The structure of what you should do for a new feature looks like this:
 ## Jagan Moorthy
 - GitHub Status(notification)
 - Mail module(Currently dead code, as GitHub status works)
+
+## Tom Axblad
+- Wrote the file system reader class
+- Wrote connection between HTML generation and file system reader
+- Did code reviews
